@@ -13,12 +13,12 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "masterplan"
-  gem.homepage = "http://github.com/traveliq/masterplan"
+  gem.homepage = "http://github.com/MGPalmer/masterplan"
   gem.license = "MIT"
   summary = %Q{Masterplan is a library for comparing Ruby data structures against predefined templates - like XML Schema without the XML.}
   gem.summary = summary
   gem.description = summary + " Please see the README on github for more information."
-  gem.email = "developer@traveliq.net"
+  gem.email = "mgpalmer@monogreen.de"
   gem.authors = ["Martin Tepper"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
