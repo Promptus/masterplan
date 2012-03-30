@@ -149,7 +149,26 @@ describe "Masterplan" do
     it "checks all array values one-to-one if the compare_each rule is used"
   end
 
-  it "converts into plain example hashes"
+  it "converts into plain example hashes" do
+    @scheme.to_hash.should == {
+      "ship" => {
+        "parts" => [
+          {
+            "name" => "Mast",
+            "scream" => "AAAAAAH",
+            "length" => 12.3,
+            "material" => "wood"
+          },
+          {
+            "name" => "Rudder",
+            "scream" => "HAAAAAARGH",
+            "length" => nil,
+            "material" => "steel"
+          }
+        ]
+      }
+    }
+  end
   it "doesn't create a Document out of anything other than a Hash"
   it "checks that the examples of rules obey the rules"
   it "has a unit test extension method"
