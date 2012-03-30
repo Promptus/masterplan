@@ -10,6 +10,9 @@ module Masterplan
     # 'allow_nil': This allows the value to be nil (breaking the first rule)
     # 'included_in': Pass an array of values - the value must be one of these
     # 'matches': Pass a regexp - the value must match it, and be a String
+    #
+    # There is one special rule that only works on hash keys:
+    # 'optional' : This makes the hash key optional, i.e. no error will occur if the key (and its value) are missing.
     def rule(example_value, options = {})
       Rule.new(example_value, options)
     end

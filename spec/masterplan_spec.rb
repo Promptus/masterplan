@@ -19,7 +19,11 @@ describe "Masterplan" do
             "material" => "steel",
             "scream" => "HAAAAAARGH"
           }
-        ]
+        ],
+        rule("flags", :optional => true) => {
+          "image" => "jolly roger",
+          "count" => 1
+        }
       }
     })
   end
@@ -77,7 +81,7 @@ describe "Masterplan" do
       end.should raise_error(ArgumentError, ":format needs to be one of [:full, :mini] !")
     end
 
-    it "complains if there are extra keys" do
+    it "complains if there are extra keys (unless they are optional)" do
       test_value_and_expect(
         { :ship => {}, :boat => {} },
         Masterplan::FailedError, /expected:	ship*\n*received:	boat,ship/
@@ -95,6 +99,45 @@ describe "Masterplan" do
       test_value_and_expect(
         { :ship => {:parts => [{:name => nil, :length => 1.0, :material => "wood", :scream => "BLEEEEERGH"}]} },
         Masterplan::FailedError, /value at 'root'=>'ship'=>'parts'=>'0'=>'name' \(NilClass\) is not a String/
+      )
+    end
+
+    it "complains if a value is nil when in an optional but given value" do
+      test_value_and_expect(
+        {
+          :ship => {
+            :parts => [
+              :name => "Thingy",
+              :length => 1.0,
+              :material => "human",
+              :scream => "UUUUUUUUH"
+            ],
+            :flags => {
+              "image" => nil,
+              "count" => 1
+            }
+          }
+        },
+        Masterplan::FailedError, /value at 'root'=>'ship'=>'flags'=>'image' \(NilClass\) is not a String/
+      )
+    end
+
+    it "complains if keys don't match up when in an optional but given value" do
+      test_value_and_expect(
+        {
+          :ship => {
+            :parts => [
+              :name => "Thingy",
+              :length => 1.0,
+              :material => "human",
+              :scream => "UUUUUUUUH"
+            ],
+            :flags => {
+              "count" => 1
+            }
+          }
+        },
+        Masterplan::FailedError, /expected:	count,image*\n*received:	count/
       )
     end
 
@@ -165,7 +208,11 @@ describe "Masterplan" do
             "length" => nil,
             "material" => "steel"
           }
-        ]
+        ],
+        "flags" => {
+          "image" => "jolly roger",
+          "count" => 1
+        }
       }
     }
   end
