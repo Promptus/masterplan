@@ -67,6 +67,16 @@ describe "Masterplan" do
       end.should raise_error(ArgumentError, /scheme needs to be a Masterplan::Document/)
     end
 
+    it "complains if not given a proper format key" do
+      lambda do
+        Masterplan.compare(
+          :scheme => Masterplan::Document.new({}),
+          :to => {},
+          :format => :medium
+        )
+      end.should raise_error(ArgumentError, ":format needs to be one of [:full, :mini] !")
+    end
+
     it "complains if there are extra keys" do
       test_value_and_expect(
         { :ship => {}, :boat => {} },
@@ -109,11 +119,37 @@ describe "Masterplan" do
       )
     end
 
+    [nil, :full].each do |format|
+      it "produces full output for format = #{format}" do
+        lambda do
+          Masterplan.compare(
+            :scheme => @scheme,
+            :to => { :ship => [] },
+            :format => format
+          )
+        end.should raise_error(
+          /value at 'root'=>'ship' \(Array\) is not a Hash !\n\s*?Expected:.*?but was/m
+        )
+      end
+    end
+
+    it "produces one-line output when using :mini format" do
+      lambda do
+        Masterplan.compare(
+          :scheme => @scheme,
+          :to => { :ship => [] },
+          :format => :mini
+        )
+      end.should raise_error(
+        "value at 'root'=>'ship' (Array) is not a Hash !"
+      )
+    end
+
     it "checks all values of value arrays, but only against the first array value of the scheme"
     it "checks all array values one-to-one if the compare_each rule is used"
   end
 
-  it "convertsinto plain example hashes"
+  it "converts into plain example hashes"
   it "doesn't create a Document out of anything other than a Hash"
   it "checks that the examples of rules obey the rules"
   it "has a unit test extension method"
