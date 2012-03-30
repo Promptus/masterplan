@@ -14,7 +14,7 @@ module Masterplan
     def to_hash
       result = {}
       each do |k, v|
-        result[k] = self.class.derulerize(v)
+        result[self.class.derulerize(k)] = self.class.derulerize(v)
       end
       result
     end

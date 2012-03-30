@@ -38,14 +38,43 @@ module Masterplan
       end
     end
 
-    def compare_hash(template, testee, format, trail = ["root"])
-      template.stringify_keys!
+    def compare_hash_keys(template, testee, trail)
+      mandatory_keys = []
+      optional_keys = []
+      template.keys.each do |key|
+        if key.is_a?(Masterplan::Rule) && key.options["optional"]
+          optional_keys << key.example_value.to_s
+        else
+          mandatory_keys << key.to_s
+        end
+      end
+      failed = false
       testee.stringify_keys!
-      raise FailedError, "keys don't match in #{format_path(trail)}:\nexpected:\t#{template.keys.sort.join(',')}\nreceived:\t#{testee.keys.sort.join(',')}" if template.keys.sort != testee.keys.sort
-      template.each do |t_key, t_value|
+      if((mandatory_keys - testee.keys).size > 0) # missing keys
+        failed = true
+      else
+        extra_keys = (testee.keys - mandatory_keys)
+        if extra_keys.size > 0 && extra_keys.sort != optional_keys.sort
+          failed = true
+        end
+      end
+      if failed
+        raise FailedError, "keys don't match in #{format_path(trail)}:\nexpected:\t#{mandatory_keys.sort.join(',')}\nreceived:\t#{testee.keys.sort.join(',')}"
+      end
+    end
+
+    def compare_hash(template, testee, format, trail = ["root"])
+      compare_hash_keys(template, testee, trail)
+      template.each do |t_key_or_rule, t_value|
+        key_is_optional = t_key_or_rule.is_a?(Masterplan::Rule) && t_key_or_rule.options["optional"]
+        t_key = if key_is_optional
+          t_key_or_rule.example_value
+        else
+          t_key_or_rule
+        end
         current_path = trail + [t_key]
         value = testee[t_key]
-        compare_value(t_value, value, format_path(current_path))
+        compare_value(t_value, value, format_path(current_path)) unless key_is_optional and value.nil?
         if value && t_value.is_a?(Array)
           # all array elements need to be of the same type as the first value in the template
           elements_template = t_value.first
