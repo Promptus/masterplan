@@ -5,7 +5,7 @@ module Masterplan
   module DefineRules
 
     # This turns the supplied +example_value+ (any object) into an object that carries rules about itself with it.
-    # The rules will be applied when a template is compared with assert_masterplan. Rules are:
+    # The rules will be applied when a template is compared with assert_masterplan or Masterplan.compare. Rules are:
     # (default): This always applies - the value must be of the same class as the +example_value+
     # 'allow_nil': This allows the value to be nil (breaking the first rule)
     # 'included_in': Pass an array of values - the value must be one of these

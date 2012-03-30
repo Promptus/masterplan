@@ -17,12 +17,14 @@ module Masterplan
 
   class << self
 
-    def compare(options = {:scheme => {}, :to => {}})
+    def compare(options = {:scheme => {}, :to => {}, :format => :full})
       scheme = options[:scheme]
       testee = options[:to]
+      format = options[:format] || :full
       raise ArgumentError, ":to needs to be a hash !" unless testee.is_a?(Hash)
       raise ArgumentError, ":scheme needs to be a Masterplan::Document !" unless scheme.is_a?(Document)
-      compare_hash(scheme, testee)
+      raise ArgumentError, ":format needs to be one of [:full, :mini] !" unless [:full, :mini].include?(format)
+      compare_hash(scheme, testee, format)
       true
     end
 
@@ -36,7 +38,7 @@ module Masterplan
       end
     end
 
-    def compare_hash(template, testee, trail = ["root"])
+    def compare_hash(template, testee, format, trail = ["root"])
       template.stringify_keys!
       testee.stringify_keys!
       raise FailedError, "keys don't match in #{format_path(trail)}:\nexpected:\t#{template.keys.sort.join(',')}\nreceived:\t#{testee.keys.sort.join(',')}" if template.keys.sort != testee.keys.sort
@@ -51,7 +53,7 @@ module Masterplan
             array_path = current_path + [index]
             compare_value(elements_template, elements_value, format_path(array_path))
             if elements_value.is_a?(Hash)
-              compare_hash(elements_template, elements_value, array_path)
+              compare_hash(elements_template, elements_value, format, array_path)
             end
           end
         end
@@ -61,16 +63,16 @@ module Masterplan
             array_path = current_path + [index]
             compare_value(elements_template, elements_value, format_path(array_path))
             if elements_value.is_a?(Hash)
-              compare_hash(elements_template, elements_value, array_path)
+              compare_hash(elements_template, elements_value, format, array_path)
             end
           end
         end
         if value.is_a?(Hash)
           if t_value.is_a?(Masterplan::Rule)
             compare_value(t_value, value, current_path)
-            compare_hash(t_value.example_value, value, current_path)
+            compare_hash(t_value.example_value, value, format, current_path)
           else
-            compare_hash(t_value, value, current_path)
+            compare_hash(t_value, value, format, current_path)
           end
         end
       end
@@ -81,10 +83,14 @@ module Masterplan
       error = Masterplan::FailedError.new
       error.printed = true
 
-      expected = PP.pp(template, '')
-      outcome = PP.pp(testee, '')
+      if format == :mini
+        raise error, e.message, caller
+      else
+        expected = PP.pp(template, '')
+        outcome = PP.pp(testee, '')
 
-      raise error, "#{e.message}\n\nExpected:\n#{expected}\n\nbut was:\n#{outcome}", caller
+        raise error, "#{e.message}\n\nExpected:\n#{expected}\n\nbut was:\n#{outcome}", caller
+      end
     end
 
     def format_path(trail)

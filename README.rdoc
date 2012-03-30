@@ -128,6 +128,12 @@ The implicit rules are:
 
 You can add extra rules with the rule method - see Masterplan::DefineRules#rule for details.
 
+You can control the verbosity of the output with the :format option:
+
+    >> Masterplan.compare(:scheme => doc, :to => {:example => :data}, :format => :mini)
+
+Valid values are :full (the default), or :mini. :mini produces only a one-line output (leaving out the "Expected...but was" part).
+
 There is also an added assertion for unit tests or specs:
 
     assert_masterplan(doc, [{:example => :data})
