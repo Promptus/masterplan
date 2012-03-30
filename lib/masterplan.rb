@@ -68,9 +68,9 @@ module Masterplan
       template.each do |t_key_or_rule, t_value|
         key_is_optional = t_key_or_rule.is_a?(Masterplan::Rule) && t_key_or_rule.options["optional"]
         t_key = if key_is_optional
-          t_key_or_rule.example_value
+          t_key_or_rule.example_value.to_s
         else
-          t_key_or_rule
+          t_key_or_rule.to_s
         end
         current_path = trail + [t_key]
         value = testee[t_key]

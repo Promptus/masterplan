@@ -6,7 +6,7 @@ describe "Masterplan" do
   before(:each) do
     @scheme = Masterplan::Document.new({
       "ship" => {
-        "parts" => [
+        :parts => [
           {
             "name" => "Mast",
             "length" => rule(12.3, :allow_nil => true),
@@ -20,7 +20,7 @@ describe "Masterplan" do
             "scream" => "HAAAAAARGH"
           }
         ],
-        rule("flags", :optional => true) => {
+        rule(:flags, :optional => true) => {
           "image" => "jolly roger",
           "count" => 1
         }
@@ -132,7 +132,7 @@ describe "Masterplan" do
               :material => "human",
               :scream => "UUUUUUUUH"
             ],
-            :flags => {
+            "flags" => {
               "count" => 1
             }
           }
@@ -195,7 +195,7 @@ describe "Masterplan" do
   it "converts into plain example hashes" do
     @scheme.to_hash.should == {
       "ship" => {
-        "parts" => [
+        :parts => [
           {
             "name" => "Mast",
             "scream" => "AAAAAAH",
@@ -209,7 +209,7 @@ describe "Masterplan" do
             "material" => "steel"
           }
         ],
-        "flags" => {
+        :flags => {
           "image" => "jolly roger",
           "count" => 1
         }
