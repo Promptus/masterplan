@@ -39,8 +39,8 @@ module Masterplan
     end
 
     def compare_hash_keys(template, testee, trail)
-      mandatory_keys = []
-      optional_keys = []
+      mandatory_keys = Set.new
+      optional_keys = Set.new
       template.keys.each do |key|
         if key.is_a?(Masterplan::Rule) && key.options["optional"]
           optional_keys << key.example_value.to_s
@@ -50,11 +50,12 @@ module Masterplan
       end
       failed = false
       testee.stringify_keys!
-      if((mandatory_keys - testee.keys).size > 0) # missing keys
+      testee_set = Set.new(testee.keys)
+      if((mandatory_keys - testee_set).size > 0) # missing keys
         failed = true
       else
-        extra_keys = (testee.keys - mandatory_keys)
-        if extra_keys.size > 0 && extra_keys.sort != optional_keys.sort
+        extra_keys = (testee_set - mandatory_keys)
+        if extra_keys.size > 0 && !extra_keys.subset?(optional_keys)
           failed = true
         end
       end

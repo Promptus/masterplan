@@ -102,43 +102,117 @@ describe "Masterplan" do
       )
     end
 
-    it "complains if a value is nil when in an optional but given value" do
-      test_value_and_expect(
-        {
-          :ship => {
-            :parts => [
-              :name => "Thingy",
-              :length => 1.0,
-              :material => "human",
-              :scream => "UUUUUUUUH"
-            ],
-            :flags => {
-              "image" => nil,
-              "count" => 1
-            }
-          }
-        },
-        Masterplan::FailedError, /value at 'root'=>'ship'=>'flags'=>'image' \(NilClass\) is not a String/
-      )
-    end
+    context "optional keys" do
 
-    it "complains if keys don't match up when in an optional but given value" do
-      test_value_and_expect(
-        {
-          :ship => {
-            :parts => [
-              :name => "Thingy",
-              :length => 1.0,
-              :material => "human",
-              :scream => "UUUUUUUUH"
-            ],
-            "flags" => {
-              "count" => 1
+      it "complains if a value is nil when in an optional but given value" do
+        test_value_and_expect(
+          {
+            :ship => {
+              :parts => [
+                :name => "Thingy",
+                :length => 1.0,
+                :material => "human",
+                :scream => "UUUUUUUUH"
+              ],
+              :flags => {
+                "image" => nil,
+                "count" => 1
+              }
             }
-          }
-        },
-        Masterplan::FailedError, /expected:	count,image*\n*received:	count/
-      )
+          },
+          Masterplan::FailedError, /value at 'root'=>'ship'=>'flags'=>'image' \(NilClass\) is not a String/
+        )
+      end
+
+      it "complains if keys don't match up when in an optional but given value" do
+        test_value_and_expect(
+          {
+            :ship => {
+              :parts => [
+                :name => "Thingy",
+                :length => 1.0,
+                :material => "human",
+                :scream => "UUUUUUUUH"
+              ],
+              "flags" => {
+                "count" => 1
+              }
+            }
+          },
+          Masterplan::FailedError, /expected:	count,image*\n*received:	count/
+        )
+      end
+      
+      context "with subsets of mandatory and optional keys" do
+        before(:each) do
+          @multi_scheme = Masterplan::Document.new({
+            :mandatory_1 => "aaa",
+            :mandatory_2 => "aaa",
+            rule(:optional_1, :optional => true)  => "aaa",
+            rule(:optional_2, :optional => true)  => "aaa",
+          })
+        end
+
+        it "doesn't complain when all keys are given" do
+          Masterplan.compare(
+            :scheme => @multi_scheme,
+            :to => {
+              :mandatory_1 => "aaa",
+              :mandatory_2 => "aaa",
+              :optional_1  => "aaa",
+              :optional_2  => "aaa",
+            }
+          ).should be_true
+        end
+
+        it "doesn't complain when only mandatory keys are given" do
+          Masterplan.compare(
+            :scheme => @multi_scheme,
+            :to => {
+              :mandatory_1 => "aaa",
+              :mandatory_2 => "aaa",
+            }
+          ).should be_true
+        end
+
+        it "doesn't complain when only some optional keys are given" do
+          Masterplan.compare(
+            :scheme => @multi_scheme,
+            :to => {
+              :mandatory_1 => "aaa",
+              :mandatory_2 => "aaa",
+              :optional_2  => "aaa"
+            }
+          ).should be_true
+        end
+
+        it "complains when one mandatory key is missing" do
+          lambda do
+            Masterplan.compare(
+              :scheme => @multi_scheme,
+              :to => {:optional_1 => "aa", :optional_2 => "aaa", :mandatory_2 => "aaa"}
+            )
+          end.should raise_error(Masterplan::FailedError, /expected:	mandatory_1,mandatory_2*\n*received:	mandatory_2,optional_1,optional_2/)
+        end
+
+        it "complains when all mandatory keys are missing" do
+          lambda do
+            Masterplan.compare(
+              :scheme => @multi_scheme,
+              :to => {:optional_1 => "aa", :optional_2 => "aaa"}
+            )
+          end.should raise_error(Masterplan::FailedError, /expected:	mandatory_1,mandatory_2*\n*received:/)
+        end
+
+        it "complains when everything is missing" do
+          lambda do
+            Masterplan.compare(
+              :scheme => @multi_scheme,
+              :to => {}
+            )
+          end.should raise_error(Masterplan::FailedError, /expected:	mandatory_1,mandatory_2*\n*received:/)
+        end
+      end
     end
 
     it "does not complain if a value is nil and the rule allows nil" do
