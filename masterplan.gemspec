@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "masterplan"
-  s.version = "0.3.2"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Martin Tepper"]
-  s.date = "2012-03-21"
+  s.date = "2012-04-11"
   s.description = "Masterplan is a library for comparing Ruby data structures against predefined templates - like XML Schema without the XML. Please see the README on github for more information."
   s.email = "mgpalmer@monogreen.de"
   s.extra_rdoc_files = [
