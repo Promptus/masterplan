@@ -3,7 +3,6 @@ require 'active_support/version'
 if ActiveSupport::VERSION::STRING >= "3.0.0"
   require 'active_support/core_ext'
 end
-require 'test/unit/assertions'
 require 'masterplan'
 require 'masterplan/rule'
 require 'masterplan/document'
@@ -11,7 +10,7 @@ require 'masterplan/define_rules'
 require 'unit_test_extensions'
 module Masterplan
 
-  class FailedError < Test::Unit::AssertionFailedError
+  class FailedError < ActiveSupport::TestCase::Assertion
     attr_accessor :printed
   end
 
