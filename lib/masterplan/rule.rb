@@ -1,7 +1,7 @@
 module Masterplan
   class Rule
 
-    OPTIONS = ["allow_nil", "compare_each", "included_in", "matches", "optional"]
+    OPTIONS = ["allow_nil", "compare_each", "included_in", "matches", "optional", "literal"]
 
     attr_accessor :options, :example_value
 
@@ -12,6 +12,7 @@ module Masterplan
       options["included_in"] ||= false
       options["matches"] ||= false
       options["optional"] ||= false
+      options["literal"] ||= false
       raise ArgumentError, "options can be #{OPTIONS.join(',')}, not #{options.keys.inspect}" unless options.keys.sort == OPTIONS.sort
       self.example_value = example
       self.options = options
@@ -25,6 +26,7 @@ module Masterplan
 #      puts @masterplan_rule_options["included_in"].inspect
 #      puts !@masterplan_rule_options["included_in"].include?(value) if @masterplan_rule_options["included_in"]
       return true if masterplan_check_allowed_nil!(value, path)
+      return true if masterplan_check_literal_equality!(value, path)
       return true if masterplan_check_included_in!(value, path)
       return true if masterplan_check_matches!(value, path)
       return true if masterplan_check_class_equality!(value, path)
@@ -59,6 +61,16 @@ module Masterplan
 
     def masterplan_check_class_equality!(value, path)
       self.class.check_class_equality!(self, value, path)
+    end
+
+    def masterplan_check_literal_equality!(value, path)
+      if options['literal']
+        if value != example_value
+          raise Masterplan::FailedError, "value at #{path} #{value.inspect} (#{value.class}) is not equal to #{example_value.inspect} !"
+        end
+      else
+        false
+      end
     end
 
     def masterplan_check_allowed_nil!(value, path)

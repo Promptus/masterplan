@@ -235,6 +235,21 @@ describe "Masterplan" do
         Masterplan::FailedError, /value at 'root'=>'ship'=>'parts'=>'0'=>'material' "socks" \(String\) is not one of \["wood", "steel", "human"\]/
       )
     end
+    
+    it "complains if literal option is used and value is not equal to example" do
+      # All ships must be named Black Pearl
+      @scheme = Masterplan::Document.new({
+        "ship" => { :name => rule("Black Pearl", :literal => true) }
+      })
+      test_value_and_expect(
+        {:ship => {:name => "Blank Earl"}},
+        Masterplan::FailedError, /value at 'root'=>'ship'=>'name' "Blank Earl" \(String\) is not equal to "Black Pearl"/
+      )
+      Masterplan.compare(
+        :scheme => @scheme,
+        :to => {:ship => {:name => "Black Pearl"}}
+      ).should be_true
+    end
 
     [nil, :full].each do |format|
       it "produces full output for format = #{format}" do
