@@ -66,6 +66,7 @@ module Masterplan
     def compare_hash(template, testee, format, trail = ["root"])
       compare_hash_keys(template, testee, trail)
       template.each do |t_key_or_rule, t_value|
+        next if t_value.is_a?(Masterplan::Rule) and t_value.options["ignore"]
         key_is_optional = t_key_or_rule.is_a?(Masterplan::Rule) && t_key_or_rule.options["optional"]
         t_key = if key_is_optional
           t_key_or_rule.example_value.to_s

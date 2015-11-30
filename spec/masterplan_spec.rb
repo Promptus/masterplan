@@ -102,6 +102,28 @@ describe "Masterplan" do
       )
     end
 
+    context "ignoring elements" do
+      before(:each) do
+        @scheme = Masterplan::Document.new({
+          "name" => "bla",
+          "crew_members" => rule({}, :ignore => true)
+        })
+      end
+
+      it "ignores any keys and values in the ignored hash" do
+        Masterplan.compare(
+          :scheme => @scheme,
+          :to => {"name" => "bla", "crew_members" => {"bla" => "blub"}}
+        ).should be_true
+
+        Masterplan.compare(
+          :scheme => @scheme,
+          :to => {"name" => "bla", "crew_members" => {}}
+        ).should be_true
+      end
+
+    end
+
     context "optional keys" do
 
       it "complains if a value is nil when in an optional but given value" do

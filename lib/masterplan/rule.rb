@@ -1,7 +1,7 @@
 module Masterplan
   class Rule
 
-    OPTIONS = ["allow_nil", "compare_each", "included_in", "matches", "optional", "literal"]
+    OPTIONS = ["allow_nil", "compare_each", "included_in", "matches", "optional", "literal", "ignore"]
 
     attr_accessor :options, :example_value
 
@@ -13,6 +13,7 @@ module Masterplan
       options["matches"] ||= false
       options["optional"] ||= false
       options["literal"] ||= false
+      options["ignore"] ||= false
       raise ArgumentError, "options can be #{OPTIONS.join(',')}, not #{options.keys.inspect}" unless options.keys.sort == OPTIONS.sort
       self.example_value = example
       self.options = options
